@@ -1,0 +1,113 @@
+h1 {
+  font-family: "Playwrite AR", cursive;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+h2 {
+  font-family: "Playwrite AR", cursive;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+h3 {
+  font-family: "Poppins", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+h4 {
+  font-family: "Poppins", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+p,
+label {
+  font-family: "Poppins", serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+body {
+  margin: 5%;
+}
+
+button {
+  font-size: 1rem;
+  border: none;
+  border-radius: 1px;
+  transition: all ease-in-out 0.2s 0s;
+  background-color: blueviolet;
+  color: white;
+  cursor: pointer;
+  transform: translate(0, 0, 0);
+  padding: 5px 10px;
+}
+
+button:hover {
+  background-color: rgb(151, 184, 44);
+  transform: translate(-10px, 10px, 5px);
+}
+
+.eventDetails {
+  max-width: 500px;
+}
+
+.eventDetails__Wrapper {
+  display: flex;
+  flex-direction: column;
+  padding: 30px;
+  background-color: aliceblue;
+  border-radius: 10px;
+}
+
+#addPeople {
+  margin-top: 2em;
+}
+
+#addPeople__Fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+#addPeople__Fields div {
+  display: flex;
+  gap: 0.5em;
+}
+
+#addPeople__Fields div:last-of-type {
+  margin-bottom: 0.5em;
+}
+
+#addPeople__Fields div:hover svg {
+  opacity: 0.8;
+}
+
+#addField {
+  opacity: 0.5;
+}
+
+.trashCan {
+  width: 16px;
+  cursor: pointer;
+  opacity: 0;
+}
+
+input {
+  max-width: 250px;
+  height: 40px;
+  padding: 5px 10px;
+}
+
+.createEventBtnWrapper {
+  display: flex;
+  justify-content: end;
+}
+
+#createEventBtn {
+  margin-top: 1em;
+  width: fit-content;
+  margin-left: auto;
+}
