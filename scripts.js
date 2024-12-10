@@ -67,6 +67,7 @@ createEventBtn.addEventListener("click", function () {
   });
 
   // Send this data to the backend to store in the DB
+  // fetch("http://localhost:8787/api/events", {
   fetch("https://d1-secret-santa.matthewincardona.workers.dev/api/events", {
     method: "POST",
     headers: {

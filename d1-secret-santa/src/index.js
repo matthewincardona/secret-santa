@@ -39,24 +39,31 @@ export default {
 					});
 				}
 
-				// Insert the event and fetch the last inserted ID in one transaction
-				const result = await env.DB.transaction(async (db) => {
-					await db.prepare('INSERT INTO Events (EventName) VALUES (?)').bind(eventName).run();
-					return await db.prepare('SELECT last_insert_rowid() AS EventId').first();
-				});
+				// Step 1: Insert the event
+				await env.DB.prepare('INSERT INTO Events (EventName) VALUES (?)').bind(eventName).run();
+
+				// Step 2: Fetch the last inserted EventId
+				const result = await env.DB.prepare('SELECT last_insert_rowid() AS EventId').first();
 
 				if (!result || !result.EventId) {
 					throw new Error('Failed to retrieve EventId');
 				}
 
-				return new Response(JSON.stringify({ message: 'Event created successfully', eventId: result.EventId }), {
-					headers: {
-						'Content-Type': 'application/json',
-						'Access-Control-Allow-Origin': '*',
-					},
-				});
+				// Step 3: Respond with success and the EventId
+				return new Response(
+					JSON.stringify({
+						message: 'Event created successfully',
+						eventId: result.EventId,
+					}),
+					{
+						headers: {
+							'Content-Type': 'application/json',
+							'Access-Control-Allow-Origin': '*',
+						},
+					}
+				);
 			} catch (error) {
-				console.error(error);
+				console.error('Error creating event:', error);
 				return new Response(JSON.stringify({ error: 'Error creating event' }), {
 					status: 500,
 					headers: {
