@@ -79,7 +79,7 @@ export default {
 			const eventId = pathname.split('/')[3];
 			try {
 				const requestBody = await request.json();
-				const { name, email } = requestBody;
+				const { name } = requestBody;
 
 				if (!name) {
 					return new Response(JSON.stringify({ error: 'Name is required' }), {
@@ -88,11 +88,12 @@ export default {
 					});
 				}
 
-				await env.DB.prepare('INSERT INTO People (EventId, Name, Email) VALUES (?, ?, ?)').bind(eventId, name, email).run();
+				await env.DB.prepare('INSERT INTO People (EventId, Name) VALUES (?, ?)').bind(eventId, name).run();
 				return new Response(JSON.stringify({ message: 'Person added successfully' }), {
 					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
 				});
 			} catch (error) {
+				console.error('Error adding person:', error);
 				return new Response(JSON.stringify({ error: 'Error adding person to event' }), {
 					status: 500,
 					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
@@ -108,51 +109,36 @@ export default {
 			return new Response(JSON.stringify(results), { headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' } });
 		}
 
-		// Generate and store Secret Santa assignments (POST /api/events/:eventId/assignments)
+		// Handle storing assignments (POST /api/events/:eventId/assignments)
 		if (request.method === 'POST' && pathname.startsWith('/api/events/') && pathname.includes('/assignments')) {
 			const eventId = pathname.split('/')[3];
+			const requestBody = await request.json();
+			const { assignments } = requestBody;
 
-			// Step 1: Get all participants in the event
-			const { results } = await env.DB.prepare('SELECT PersonId FROM People WHERE EventId = ?').bind(eventId).all();
-
-			if (results.length < 2) {
-				return new Response(JSON.stringify({ error: 'Not enough participants to generate Secret Santa assignments' }), {
+			if (!assignments || assignments.length === 0) {
+				return new Response(JSON.stringify({ error: 'No assignments provided' }), {
 					status: 400,
 					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
 				});
 			}
 
-			// Step 2: Randomize assignments
-			const participants = results.map((row) => row.PersonId);
-			const assignments = [];
-			let shuffled = [...participants];
-
-			// Shuffle and pair
-			for (let i = 0; i < participants.length; i++) {
-				let randomIndex = Math.floor(Math.random() * shuffled.length);
-				let giver = participants[i];
-				let receiver = shuffled[randomIndex];
-
-				// Ensure no one is assigned to themselves
-				while (giver === receiver) {
-					randomIndex = Math.floor(Math.random() * shuffled.length);
-					receiver = shuffled[randomIndex];
+			try {
+				// Insert the assignments into the database
+				for (const { giverId, receiverId } of assignments) {
+					await env.DB.prepare('INSERT INTO SecretSantaAssignments (EventId, GiverId, ReceiverId) VALUES (?, ?, ?)')
+						.bind(eventId, giverId, receiverId)
+						.run();
 				}
-
-				assignments.push({ giverId: giver, receiverId: receiver });
-				shuffled = shuffled.filter((id) => id !== receiver); // Remove assigned receiver from shuffled list
+				return new Response(JSON.stringify({ message: 'Secret Santa assignments generated successfully' }), {
+					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+				});
+			} catch (error) {
+				console.error('Error inserting assignments:', error);
+				return new Response(JSON.stringify({ error: 'Error saving assignments' }), {
+					status: 500,
+					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+				});
 			}
-
-			// Step 3: Store assignments in the database
-			for (const { giverId, receiverId } of assignments) {
-				await env.DB.prepare('INSERT INTO SecretSantaAssignments (EventId, GiverId, ReceiverId) VALUES (?, ?, ?)')
-					.bind(eventId, giverId, receiverId)
-					.run();
-			}
-
-			return new Response(JSON.stringify({ message: 'Secret Santa assignments generated successfully' }), {
-				headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-			});
 		}
 
 		// GET Secret Santa assignment for a specific user (GET /api/events/:eventId/people/:personId/assignment)
@@ -169,6 +155,8 @@ export default {
 			const { results } = await env.DB.prepare('SELECT ReceiverId FROM SecretSantaAssignments WHERE EventId = ? AND GiverId = ?')
 				.bind(eventId, personId)
 				.all();
+
+			console.log('Assignment fetched for personId', personId, ':', results); // Add this line to debug
 
 			if (results.length === 0) {
 				return new Response(JSON.stringify({ error: 'No Secret Santa assignment found for this user' }), {

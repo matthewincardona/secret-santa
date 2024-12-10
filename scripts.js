@@ -66,9 +66,9 @@ createEventBtn.addEventListener("click", function () {
     }
   });
 
-  // Send this data to the backend to store in the DB
-  // fetch("http://localhost:8787/api/events", {
-  fetch("https://d1-secret-santa.matthewincardona.workers.dev/api/events", {
+  // Send the event name to the backend to create the event
+  fetch("http://localhost:8787/api/events", {
+    // fetch("https://d1-secret-santa.matthewincardona.workers.dev/api/events", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -82,8 +82,38 @@ createEventBtn.addEventListener("click", function () {
       if (data.eventId) {
         console.log("Event created successfully:", data);
         alert("Event created successfully!");
-        // Redirect to the event page using the eventId
-        window.location.href = `/event/${data.eventId}`;
+
+        // Add each person to the event
+        const addPeoplePromises = people.map((person) => {
+          return fetch(
+            `http://localhost:8787/api/events/${data.eventId}/people`,
+            // `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${data.eventId}/people`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ name: person }),
+            }
+          );
+        });
+
+        // Wait for all people to be added before redirecting
+        Promise.all(addPeoplePromises)
+          .then(() => {
+            console.log("All people added successfully.");
+            // Redirect to the event page using the eventId
+            window.location.href = `/event.html?eventid=${data.eventId}`;
+          })
+          .catch((error) => {
+            console.error("Error adding people:", error);
+            alert(
+              "Event created, but there was an error adding some participants."
+            );
+            alert(
+              "Failed to add all people to event. Please reload the page and try again."
+            );
+          });
       } else {
         console.error("Error creating event: No eventId returned");
         alert("There was an error creating the event.");
