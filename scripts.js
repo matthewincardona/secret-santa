@@ -81,7 +81,7 @@ createEventBtn.addEventListener("click", function () {
     .then((data) => {
       if (data.eventId) {
         console.log("Event created successfully:", data);
-        alert("Event created successfully!");
+        // alert("Event created successfully!");
 
         // Add each person to the event
         const addPeoplePromises = people.map((person) => {

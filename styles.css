@@ -23,7 +23,10 @@ h4 {
 }
 
 p,
-label {
+label,
+input,
+button,
+::placeholder {
   font-family: "Poppins", serif;
   font-optical-sizing: auto;
   font-style: normal;
@@ -52,6 +55,7 @@ button:hover {
 
 .eventDetails {
   max-width: 500px;
+  margin-top: 1em;
 }
 
 .eventDetails__Wrapper {
