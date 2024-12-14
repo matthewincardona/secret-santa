@@ -1,3 +1,69 @@
+// Get URL parameters
+const queryParams = new URLSearchParams(window.location.search);
+const eventId = queryParams.get("eventid");
+const personId = queryParams.get("personid") / 7 / 4;
+// console.log(eventId, personId);
+
+// Get the HTML elements to update
+const personNameElement = document.getElementById("person-name");
+const assignmentElement = document.getElementById("assignment");
+
+if (eventId && personId) {
+  // Fetch participants
+  fetch(
+    `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`
+  )
+    .then((response) => response.json())
+    .then((participants) => {
+      const person = participants.find((p) => p.PersonId == personId);
+      if (person) {
+        personNameElement.textContent = `Hello, ${person.Name}!`;
+
+        // Fetch all assignments for the event
+        fetch(
+          `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/assignments`
+        )
+          .then((response) => response.json())
+          .then((assignments) => {
+            // Find the assignment for the current person (Giver)
+            const assignment = assignments.find((a) => a.GiverId == personId);
+            if (assignment) {
+              // Find the receiver using their PersonId
+              const receiver = participants.find(
+                (p) => p.PersonId == assignment.ReceiverId
+              );
+              if (receiver) {
+                assignmentElement.textContent = `${receiver.Name}!`;
+              } else {
+                assignmentElement.textContent =
+                  "Unable to find the recipient's name.";
+              }
+            } else {
+              assignmentElement.textContent =
+                "No Secret Santa assignment found for you.";
+            }
+          })
+          .catch((error) => {
+            console.error("Error fetching assignments:", error);
+            assignmentElement.textContent =
+              "Error fetching your assignment. Please try again later.";
+          });
+      } else {
+        personNameElement.textContent = "Person not found in this event.";
+        assignmentElement.textContent = "";
+      }
+    })
+    .catch((error) => {
+      console.error("Error fetching participants:", error);
+      personNameElement.textContent = "Error loading event details.";
+      assignmentElement.textContent = "Please try again later.";
+    });
+} else {
+  personNameElement.textContent =
+    "Invalid URL. Missing event or person information.";
+  assignmentElement.textContent = "";
+}
+
 snowflakes();
 
 function snowflakes() {

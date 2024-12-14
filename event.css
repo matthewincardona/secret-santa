@@ -1,0 +1,10 @@
+#participantsList button {
+  opacity: 0;
+  transition: opacity ease-in-out 0.2s 0;
+}
+#participantsList li:hover button {
+  opacity: 1;
+}
+#participantslist li {
+  list-style-type: none;
+}

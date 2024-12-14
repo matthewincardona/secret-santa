@@ -74,6 +74,44 @@ export default {
 			}
 		}
 
+		// GET Secret Santa assignments for a specific event (GET /api/events/:eventId/assignments)
+		if (request.method === 'GET' && pathname.startsWith('/api/events/') && pathname.includes('/assignments')) {
+			const eventId = pathname.split('/')[3];
+
+			// Step 1: Fetch all assignments with names for the event
+			const { results } = await env.DB.prepare(
+				`
+	  SELECT 
+		  a.GiverId, 
+		  g.Name AS GiverName, 
+		  a.ReceiverId, 
+		  r.Name AS ReceiverName
+	  FROM 
+		  SecretSantaAssignments a
+	  JOIN 
+		  People g ON a.GiverId = g.PersonId
+	  JOIN 
+		  People r ON a.ReceiverId = r.PersonId
+	  WHERE 
+		  a.EventId = ?
+	`
+			)
+				.bind(eventId)
+				.all();
+
+			if (results.length === 0) {
+				return new Response(JSON.stringify({ error: 'No assignments found for this event' }), {
+					status: 404,
+					headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+				});
+			}
+
+			// Step 2: Return the assignments with names
+			return new Response(JSON.stringify(results), {
+				headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+			});
+		}
+
 		// ADD a person to an event (POST /api/events/:eventId/people)
 		if (request.method === 'POST' && pathname.startsWith('/api/events/') && pathname.includes('/people')) {
 			const eventId = pathname.split('/')[3];

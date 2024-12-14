@@ -4,25 +4,20 @@ var createEventBtn = document.getElementById("createEventBtn");
 var eventNameInput = document.getElementById("eventName");
 var eventName = "";
 var people = [];
+var eventId = "";
 
+// Add new input field for participants
 addField.addEventListener("click", function () {
-  console.log("Field added...");
+  console.log("Adding new input field for participant...");
 
-  // Create the wrapper div
   var wrapperDiv = document.createElement("div");
-
-  // Create the input field
   var newField = document.createElement("input");
   newField.type = "text";
-  newField.name = "name";
   newField.placeholder = "Name";
   newField.maxLength = 30;
 
-  // Create the trashcan icon
-  //   <!--!Font Awesome Free 6.7.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
   var trashCan = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   trashCan.classList.add("trashCan");
-  trashCan.setAttribute("xmlns", "http://www.w3.org/2000/svg");
   trashCan.setAttribute("viewBox", "0 0 448 512");
 
   var trashPath = document.createElementNS(
@@ -35,92 +30,143 @@ addField.addEventListener("click", function () {
   );
   trashCan.appendChild(trashPath);
 
-  // Add a click event to the trashcan to remove the field
   trashCan.addEventListener("click", function () {
+    console.log("Removed input field");
     wrapperDiv.remove();
   });
 
-  // Append the input field and trashcan to the wrapper div
   wrapperDiv.appendChild(newField);
   wrapperDiv.appendChild(trashCan);
-
-  // Append the wrapper div to the container
   addPeople__Fields.appendChild(wrapperDiv);
-
-  // Focus new field
   newField.focus();
 });
 
+// Create event and add people
 createEventBtn.addEventListener("click", function () {
-  eventName = eventNameInput.value.trim();
-  people = [];
+  console.log("Create Event button clicked");
 
-  // Get all input elements within the addPeople__Fields container
+  eventName = eventNameInput.value.trim();
+  console.log("Event name:", eventName);
+
+  people = [];
   var inputFields = addPeople__Fields.querySelectorAll("input[type='text']");
 
-  // Iterate through each input field and add its value to the people array
-  inputFields.forEach(function (inputField) {
+  inputFields.forEach((inputField) => {
     var name = inputField.value.trim();
-    if (name) {
-      people.push(name);
-    }
+    if (name) people.push(name);
   });
 
-  // Send the event name to the backend to create the event
-  fetch("http://localhost:8787/api/events", {
-    // fetch("https://d1-secret-santa.matthewincardona.workers.dev/api/events", {
+  console.log("Participants collected:", people);
+
+  // Step 1: Create the event
+  console.log("Creating event...");
+  fetch("https://d1-secret-santa.matthewincardona.workers.dev/api/events", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      eventName: eventName,
-    }),
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ eventName: eventName }),
   })
     .then((response) => response.json())
     .then((data) => {
+      console.log("Event creation response:", data);
       if (data.eventId) {
-        console.log("Event created successfully:", data);
-        // alert("Event created successfully!");
+        eventId = data.eventId;
+        console.log("Event ID:", eventId);
 
-        // Add each person to the event
+        // Step 2: Add participants
+        console.log("Adding participants...");
         const addPeoplePromises = people.map((person) => {
+          console.log("Adding participant:", person);
           return fetch(
-            `http://localhost:8787/api/events/${data.eventId}/people`,
-            // `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${data.eventId}/people`,
+            `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`,
             {
               method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
+              headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ name: person }),
             }
           );
         });
 
-        // Wait for all people to be added before redirecting
-        Promise.all(addPeoplePromises)
-          .then(() => {
-            console.log("All people added successfully.");
-            // Redirect to the event page using the eventId
-            window.location.href = `/event.html?eventid=${data.eventId}`;
-          })
-          .catch((error) => {
-            console.error("Error adding people:", error);
-            alert(
-              "Event created, but there was an error adding some participants."
-            );
-            alert(
-              "Failed to add all people to event. Please reload the page and try again."
-            );
-          });
+        return Promise.all(addPeoplePromises).then(() => eventId);
       } else {
-        console.error("Error creating event: No eventId returned");
-        alert("There was an error creating the event.");
+        throw new Error("No eventId returned from server");
       }
     })
+    .then((eventId) => {
+      console.log("All participants added. Fetching participants...");
+      return fetch(
+        `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`
+      );
+    })
+    .then((response) => response.json())
+    .then((participants) => {
+      console.log("Fetched participants:", participants);
+      if (participants.length > 1) {
+        console.log("Generating assignments...");
+        const assignments = generateSecretSantaAssignments(participants);
+        console.log("Generated assignments:", assignments);
+        return storeAssignments(eventId, assignments);
+      } else {
+        throw new Error("At least 2 participants are required.");
+      }
+    })
+    .then(() => {
+      console.log("Assignments successfully saved.");
+      alert("Event and assignments created successfully!");
+      window.location.href = `/event.html?eventid=${eventId}`;
+    })
     .catch((error) => {
-      console.error("Error creating event:", error);
-      alert("There was an error creating the event.");
+      console.error("Error during event creation:", error);
+      alert("There was an error creating the event or assignments.");
     });
 });
+
+// Function to generate Secret Santa assignments
+function generateSecretSantaAssignments(participants) {
+  console.log("Generating Secret Santa assignments...");
+  let shuffled = [...participants];
+  const assignments = [];
+
+  for (let i = 0; i < participants.length; i++) {
+    let randomIndex = Math.floor(Math.random() * shuffled.length);
+    let giver = participants[i];
+    let receiver = shuffled[randomIndex];
+
+    // Ensure no self-assignment
+    while (giver.PersonId === receiver.PersonId) {
+      console.log("Self-assignment detected. Retrying...");
+      randomIndex = Math.floor(Math.random() * shuffled.length);
+      receiver = shuffled[randomIndex];
+    }
+
+    console.log(`Assignment: ${giver.PersonId} → ${receiver.PersonId}`);
+    assignments.push({
+      giverId: giver.PersonId,
+      receiverId: receiver.PersonId,
+    });
+
+    shuffled = shuffled.filter(
+      (person) => person.PersonId !== receiver.PersonId
+    );
+  }
+
+  console.log("Final assignments:", assignments);
+  return assignments;
+}
+
+// Function to send assignments to the backend
+function storeAssignments(eventId, assignments) {
+  console.log("Storing assignments:", assignments);
+  return fetch(
+    `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/assignments`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ assignments: assignments }),
+    }
+  )
+    .then((response) => response.json())
+    .then((data) => {
+      console.log("Assignments storage response:", data);
+      return data;
+    });
+}
