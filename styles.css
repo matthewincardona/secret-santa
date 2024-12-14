@@ -85,7 +85,7 @@ button:hover {
   display: flex;
   flex-direction: column;
   padding: 30px;
-  background-color: aliceblue;
+  border: solid white 1px;
   border-radius: 10px;
 }
 
