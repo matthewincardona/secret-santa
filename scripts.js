@@ -8,8 +8,6 @@ var eventId = "";
 
 // Add new input field for participants
 addField.addEventListener("click", function () {
-  console.log("Adding new input field for participant...");
-
   var wrapperDiv = document.createElement("div");
   var newField = document.createElement("input");
   newField.type = "text";
@@ -31,7 +29,6 @@ addField.addEventListener("click", function () {
   trashCan.appendChild(trashPath);
 
   trashCan.addEventListener("click", function () {
-    console.log("Removed input field");
     wrapperDiv.remove();
   });
 
@@ -43,10 +40,7 @@ addField.addEventListener("click", function () {
 
 // Create event and add people
 createEventBtn.addEventListener("click", function () {
-  console.log("Create Event button clicked");
-
   eventName = eventNameInput.value.trim();
-  console.log("Event name:", eventName);
 
   people = [];
   var inputFields = addPeople__Fields.querySelectorAll("input[type='text']");
@@ -59,7 +53,6 @@ createEventBtn.addEventListener("click", function () {
   console.log("Participants collected:", people);
 
   // Step 1: Create the event
-  console.log("Creating event...");
   fetch("https://d1-secret-santa.matthewincardona.com/api/events", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -67,15 +60,11 @@ createEventBtn.addEventListener("click", function () {
   })
     .then((response) => response.json())
     .then((data) => {
-      console.log("Event creation response:", data);
       if (data.eventId) {
         eventId = data.eventId;
-        console.log("Event ID:", eventId);
 
         // Step 2: Add participants
-        console.log("Adding participants...");
         const addPeoplePromises = people.map((person) => {
-          console.log("Adding participant:", person);
           return fetch(
             `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/people`,
             {
@@ -92,7 +81,6 @@ createEventBtn.addEventListener("click", function () {
       }
     })
     .then((eventId) => {
-      console.log("All participants added. Fetching participants...");
       return fetch(
         `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/people`
       );
@@ -101,16 +89,13 @@ createEventBtn.addEventListener("click", function () {
     .then((participants) => {
       console.log("Fetched participants:", participants);
       if (participants.length > 1) {
-        console.log("Generating assignments...");
         const assignments = generateSecretSantaAssignments(participants);
-        console.log("Generated assignments:", assignments);
         return storeAssignments(eventId, assignments);
       } else {
         throw new Error("At least 2 participants are required.");
       }
     })
     .then(() => {
-      console.log("Assignments successfully saved.");
       alert("Event and assignments created successfully!");
       window.location.href = `/event.html?eventid=${eventId}`;
     })
@@ -122,7 +107,6 @@ createEventBtn.addEventListener("click", function () {
 
 // Function to generate Secret Santa assignments
 function generateSecretSantaAssignments(participants) {
-  console.log("Generating Secret Santa assignments...");
   let shuffled = [...participants];
   const assignments = [];
 
@@ -133,12 +117,10 @@ function generateSecretSantaAssignments(participants) {
 
     // Ensure no self-assignment
     while (giver.PersonId === receiver.PersonId) {
-      console.log("Self-assignment detected. Retrying...");
       randomIndex = Math.floor(Math.random() * shuffled.length);
       receiver = shuffled[randomIndex];
     }
 
-    console.log(`Assignment: ${giver.PersonId} → ${receiver.PersonId}`);
     assignments.push({
       giverId: giver.PersonId,
       receiverId: receiver.PersonId,
@@ -155,7 +137,6 @@ function generateSecretSantaAssignments(participants) {
 
 // Function to send assignments to the backend
 function storeAssignments(eventId, assignments) {
-  console.log("Storing assignments:", assignments);
   return fetch(
     `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/assignments`,
     {
@@ -166,7 +147,6 @@ function storeAssignments(eventId, assignments) {
   )
     .then((response) => response.json())
     .then((data) => {
-      console.log("Assignments storage response:", data);
       return data;
     });
 }
