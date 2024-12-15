@@ -23,7 +23,7 @@ if (eventId) {
           copyButton.style.marginLeft = "10px";
           var randomPersonId = person.PersonId * 7 * 4;
           copyButton.addEventListener("click", () => {
-            const link = `http://127.0.0.1:5500/secret-santa.html?eventid=${eventId}&personid=${randomPersonId}`;
+            const link = `https://secret-santa.matthewincardona.com?eventid=${eventId}&personid=${randomPersonId}`;
             navigator.clipboard
               .writeText(link)
               .then(() => alert(`Link copied: ${link}`))
