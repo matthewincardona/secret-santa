@@ -5,7 +5,7 @@ const eventId = queryParams.get("eventid");
 if (eventId) {
   // Fetch participants
   fetch(
-    `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`
+    `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/people`
   )
     .then((response) => response.json())
     .then((participants) => {
@@ -43,7 +43,7 @@ if (eventId) {
 
   // Fetch Secret Santa assignments
   fetch(
-    `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/assignments`
+    `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/assignments`
   )
     .then((response) => response.json())
     .then((assignments) => {

@@ -60,7 +60,7 @@ createEventBtn.addEventListener("click", function () {
 
   // Step 1: Create the event
   console.log("Creating event...");
-  fetch("https://d1-secret-santa.matthewincardona.workers.dev/api/events", {
+  fetch("https://d1-secret-santa.matthewincardona.com/api/events", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ eventName: eventName }),
@@ -77,7 +77,7 @@ createEventBtn.addEventListener("click", function () {
         const addPeoplePromises = people.map((person) => {
           console.log("Adding participant:", person);
           return fetch(
-            `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`,
+            `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/people`,
             {
               method: "POST",
               headers: { "Content-Type": "application/json" },
@@ -94,7 +94,7 @@ createEventBtn.addEventListener("click", function () {
     .then((eventId) => {
       console.log("All participants added. Fetching participants...");
       return fetch(
-        `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`
+        `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/people`
       );
     })
     .then((response) => response.json())
@@ -157,7 +157,7 @@ function generateSecretSantaAssignments(participants) {
 function storeAssignments(eventId, assignments) {
   console.log("Storing assignments:", assignments);
   return fetch(
-    `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/assignments`,
+    `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/assignments`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

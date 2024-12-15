@@ -11,7 +11,7 @@ const assignmentElement = document.getElementById("assignment");
 if (eventId && personId) {
   // Fetch participants
   fetch(
-    `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/people`
+    `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/people`
   )
     .then((response) => response.json())
     .then((participants) => {
@@ -21,7 +21,7 @@ if (eventId && personId) {
 
         // Fetch all assignments for the event
         fetch(
-          `https://d1-secret-santa.matthewincardona.workers.dev/api/events/${eventId}/assignments`
+          `https://d1-secret-santa.matthewincardona.com/api/events/${eventId}/assignments`
         )
           .then((response) => response.json())
           .then((assignments) => {
