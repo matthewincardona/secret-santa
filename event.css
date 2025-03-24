@@ -1,7 +1,7 @@
 .participantsList-container {
   margin-top: 40px;
   background-color: rgba(241, 248, 253, 0.332);
-  max-width: 600px;
+  max-width: 500px;
   width: 100%;
   border-radius: 10px;
   padding: 16px 8px;
@@ -13,6 +13,7 @@
 }
 
 #participantsList {
+  margin-left: -20px;
   list-style: none;
 }
 
