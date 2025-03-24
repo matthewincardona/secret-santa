@@ -17,7 +17,7 @@ if (eventId && personId) {
     .then((participants) => {
       const person = participants.find((p) => p.PersonId == personId);
       if (person) {
-        personNameElement.textContent = `Hello, ${person.Name}!`;
+        personNameElement.textContent = `Happy Holidays, ${person.Name}!`;
 
         // Fetch all assignments for the event
         fetch(
