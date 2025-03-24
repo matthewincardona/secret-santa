@@ -1,10 +1,27 @@
+.participantsList-container {
+  margin-top: 40px;
+  background-color: rgba(241, 248, 253, 0.332);
+  max-width: 600px;
+  width: 100%;
+  border-radius: 10px;
+  padding: 16px 8px;
+}
+
 #participantsList button {
   opacity: 0;
   transition: opacity ease-in-out 0.2s 0;
 }
+
+#participantsList {
+  list-style: none;
+}
+
 #participantsList li:hover button {
   opacity: 1;
 }
-#participantslist li {
-  list-style-type: none;
+
+#participantsList li::before {
+  content: '🎁';
+  margin-right: 10px;
+  /* Adjust space between marker and text */
 }

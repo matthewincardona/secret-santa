@@ -1,24 +1,32 @@
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
-    <link rel="stylesheet" href="reset.css" />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="event.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-      rel="stylesheet"
-    />
-    <title>Event Details</title>
-  </head>
-  <body>
-    <h3>Share With People</h3>
-    <ul id="participantsList"></ul>
 
-    <ul style="display: none" id="assignmentsList"></ul>
-    <script src="event.js"></script>
-  </body>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/x-icon" href="/assets/favicon.ico" />
+  <link rel="stylesheet" href="reset.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="event.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Major+Mono+Display&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet" />
+  <title>Event Details</title>
+</head>
+
+<body>
+  <div class="title">
+    <!-- <img src="./assets/tree.webp" alt="" width="120px" height="120px"> -->
+    <h1>🎉 Share Your Event!</h1>
+  </div>
+  <p style="max-width: 40ch;">Hover over a person's name and click "Copy Link" to copy their unique link. <strong>Only
+      they'll know who they got assigned to!</strong></p>
+  <div class="participantsList-container">
+    <ul id="participantsList"></ul>
+  </div>
+
+  <script src="event.js"></script>
+</body>
+
 </html>
